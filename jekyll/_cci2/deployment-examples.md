@@ -19,9 +19,10 @@ This document presents example config for a variately of popular deployment targ
 
 ## AWS
 
-This section covers deployment to S3, ECR/ECS (Elastic Container Registry/Elastic Container Service), as well as application deployment using AWS Code Deploy. For an in-depth look at deploying to AWS ECS from ECR, see the [Deploying to AWS ECS/ECR document]({{ site.baseurl }}/2.0/ecs-ecr/).
+This section covers deployment to S3, ECR/ECS (Elastic Container Registry/Elastic Container Service), as well as application deployment using AWS Code Deploy.
 
-For more detailed information about the AWS ECS, AWS ECR, & AWS CodeDeploy orbs, refer to the following Orb registry pages:
+For more detailed information about the AWS S3, ECS, ECR, and CodeDeploy orbs, refer to the following Orb registry pages:
+- [AWS S3](https://circleci.com/orbs/registry/orb/circleci/aws-s3)
 - [AWS ECR](https://circleci.com/orbs/registry/orb/circleci/aws-ecr)
 - [AWS ECS](https://circleci.com/orbs/registry/orb/circleci/aws-ecs)
 - [AWS CodeDeploy](https://circleci.com/orbs/registry/orb/circleci/aws-code-deploy)
@@ -131,7 +132,7 @@ For a complete list of AWS CLI commands and options, see the [AWS CLI Command Re
 {:.no_toc}
 The AWS ECR orb enables you to log into AWS, build, and then push a Docker image to AWS Elastic Container Registry with minimal config. See the [orb registry page](https://circleci.com/orbs/registry/orb/circleci/aws-ecr) for a full list of parameters, jobs, commands and options.
 
-Using the `build_and_push_image` job, as shown below requires the following env vars to be set: `AWS_ECR_ACCOUNT_URL`, `ACCESS_KEY_ID`, `SECRET_ACCESS_KEY`, `AWS_REGION`. {% include snippets/env-var-or-context.md %}
+Using the `build-and-push-image` job, as shown below requires the following env vars to be set: `AWS_ECR_ACCOUNT_URL`, `ACCESS_KEY_ID`, `SECRET_ACCESS_KEY`, `AWS_REGION`. {% include snippets/env-var-or-context.md %}
 
 {% raw %}
 
@@ -144,7 +145,7 @@ orbs:
 workflows:
   build_and_push_image: 
     jobs:
-      - aws-ecr/build_and_push_image: # Use the pre-defined `build_and_push_image` job
+      - aws-ecr/build-and-push-image: # Use the pre-defined `build-and-push-image` job
           dockerfile: <my-Docker-file>
           path: <path-to-my-Docker-file>
           profile-name: <my-profile-name>
@@ -159,7 +160,7 @@ workflows:
 
 Use the [AWS ECR](https://circleci.com/orbs/registry/orb/circleci/aws-ecr) and [ECS](https://circleci.com/orbs/registry/orb/circleci/aws-ecs) orbs to easily update an existing AWS ECS instance.
 
-Using the `build_and_push_image` job, as shown below requires the following env vars to be set: `AWS_ECR_ACCOUNT_URL`, `ACCESS_KEY_ID`, `SECRET_ACCESS_KEY`, `AWS_REGION`. {% include snippets/env-var-or-context.md %}
+Using the `build-and-push-image` job, as shown below requires the following env vars to be set: `AWS_ECR_ACCOUNT_URL`, `ACCESS_KEY_ID`, `SECRET_ACCESS_KEY`, `AWS_REGION`. {% include snippets/env-var-or-context.md %}
 
 {% raw %}
 
@@ -173,7 +174,7 @@ orbs:
 workflows:
   build-and-deploy:
     jobs:
-      - aws-ecr/build_and_push_image:
+      - aws-ecr/build-and-push-image:
           dockerfile: <my-Docker-file>
           path: <path-to-my-Docker-file>
           profile-name: <my-profile-name>
@@ -181,7 +182,7 @@ workflows:
           tag: '${CIRCLE_SHA1}' 
       - aws-ecs/deploy-service-update:
           requires:
-            - aws-ecr/build_and_push_image # only run the deployment job once the build and push image job has completed
+            - aws-ecr/build-and-push-image # only run the deployment job once the build and push image job has completed
           family: '${MY_APP_PREFIX}-service'
           cluster-name: '${MY_APP_PREFIX}-cluster'
           container-image-name-updates: 'container=${MY_APP_PREFIX}-service,tag=${CIRCLE_SHA1}'
@@ -589,7 +590,7 @@ to set up a project in your chosen language.
       heroku_deploy:
         jobs:
           - build
-          - heroku/deploy-via-git
+          - heroku/deploy-via-git:
               requires:
                 - build # only run deploy-via-git job if the build job has completed
               filters:
